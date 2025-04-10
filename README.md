@@ -1,28 +1,59 @@
-# Fabric Example Mod with StationAPI and BIN Mappings for beta 1.7.3 server + client
+# GamerulePlease
 
-## Setup
+[![Discord](https://img.shields.io/badge/Discord-%235865F2.svg?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/aY2WFGPBBB)
 
-Run the `_setup/setupMod` task and give it the inputs it needs. **This is a required step.**
+Oh waiter, may I have the gamerule please?
 
-[See the StationAPI wiki.](https://github.com/ModificationStation/StationAPI/wiki)
+A Beta 1.7.3 backport of modern gamerules
 
-## Common Issues
+## Gamerules
+### Player
+- [ ] disablePlayerMovementCheck
+- [x] doImmediateRespawn
+- [x] drowningDamage
+- [x] fallDamage
+- [x] fireDamage
+- [x] keepInventory
+- [x] playersNetherPortalDelay
+### Mob
+- [x] doMobSpawning
+- [x] mobGriefing
+- [ ] universalAnger
+- [ ] forgiveDeadPlayers
+### Drops
+- [x] doMobLoot
+- [x] doTileDrops
+- [ ] projectilesCanBreakBlocks
+- [x] blockExplosionDropDecay
+- [x] mobExplosionDropDecay
+- [x] tntExplosionDropDecay
+### World Updates
+- [x] doDaylightCycle
+- [x] doWeatherCycle
+- [x] doFireTick
+- [x] randomTickSpeed
+- [x] lavaSourceConversion
+- [x] waterSourceConversion
+### Multiplayer
+- [ ] logAdminCommands
+- [ ] sendCommandFeedback
+- [x] playersSleepingPercentage (Untested)
+### Miscellaneous
+- [x] reducedDebugInfo
+- [x] showCoordinates
+- [x] showDaysPlayed
+- [ ] minecartMaxSpeed
+- [x] tntExplodes
+- [x] respawnBlocksExplode
 
-**My project isn't building after updating babric loom/stationapi!**  
-Run a gradle task with `--refresh-dependencies` as an argument, and this should be fixed. If not, try deleting your project's `.gradle` folder, and try again.
+## Dependencies
+This mod requires the following mods
 
-**I get "Invalid source release: 17" as an error!**  
-Use Java 17. Open up `File > Project Structure` and change your SDK to Java 17.  
-If you still get the issue, you may need to go into `File > Settings > Build, Execution, Deployment > Build Tools > Gradle` and change the Java that Gradle uses too.
+- [Babric](https://github.com/babric/prism-instance)
+- [StationAPI 2.0.0-alpha.4](https://github.com/ModificationStation/StationAPI/releases/tag/2.0.0-alpha.4)
+- [Glass Config API 3.0.4+](https://modrinth.com/mod/glass-config-api)
 
-**How do I stop server.properties from constantly changing?**  
-Remove the last line in the `gitignore` file.
-
-**My client hangs on a blank screen on trying to my test server!**  
-Open your `server.properties` and set `online-mode` to `false`.
-
-[Here for more issues.](https://github.com/calmilamsy/BIN-fabric-example-mod#common-issues)
+Though not required, it is highly recommended you have [Mod Menu](https://github.com/calmilamsy/ModMenu)
 
 ## License
-
-This template is available under the CC0 license. Feel free to learn from it and incorporate it in your own projects.
+All code/textures from this project are licensed under the [MIT License](https://tldrlegal.com/license/mit-license)
