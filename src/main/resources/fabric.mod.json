@@ -1,36 +1,45 @@
 {
   "schemaVersion": 1,
-  "id": "%s",
+  "id": "gamerule_please",
   "version": "${version}",
 
-  "name": "Example Mod",
-  "description": "This is an example description! Tell everyone what your mod is about!",
+  "name": "Gamerule Please",
+  "description": "An implementation of all applicable gamerules from modern Minecraft, plus a few from Bedrock Edition",
   "authors": [
-    "Me!"
+    "Yunivers"
   ],
   "contact": {
-    "homepage": "https://glass-launcher.net/",
-    "sources": "https://github.com/calmilamsy/stationapi-example-mod"
+    "homepage": "https://github.com/AITYunivers/GamerulePlease",
+    "sources": "https://github.com/AITYunivers/GamerulePlease",
+    "issues": "https://github.com/AITYunivers/GamerulePlease/issues"
   },
 
-  "license": "CC0-1.0",
-  "icon": "assets/%s/icon.png",
+  "license": "MIT",
+  "icon": "assets/gamerule_please/icon.png",
 
   "environment": "*",
   "entrypoints": {
     "stationapi:event_bus": [
-      "%s.events.init.InitListener"
+      "io.github.yunivers.gamerule_please.GamerulePlease"
     ],
     "stationapi:event_bus_client": [
     ],
     "stationapi:event_bus_server": [
+    ],
+    "gcapi3": [
+      "io.github.yunivers.gamerule_please.config.Config"
     ]
   },
   "mixins": [
-    "%s.mixins.json"
+    "gamerule_please.mixins.json"
   ],
+  "accessWidener" : "gamerule_please.accesswidener",
 
   "depends": {
-    "minecraft": "1.0.0-beta.7.3"
+    "minecraft": "1.0.0-beta.7.3",
+    "gcapi3": "3.0.4+"
+  },
+  "suggests": {
+    "modmenu": "*"
   }
 }

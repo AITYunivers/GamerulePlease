@@ -1,0 +1,16 @@
+accessWidener v2 named
+
+transitive-accessible field     net/minecraft/world/World                   allPlayersSleeping Z
+
+# Minecart
+transitive-accessible field     net/minecraft/entity/vehicle/MinecartEntity clientInterpolationSteps I
+transitive-accessible field     net/minecraft/entity/vehicle/MinecartEntity clientX D
+transitive-accessible field     net/minecraft/entity/vehicle/MinecartEntity clientY D
+transitive-accessible field     net/minecraft/entity/vehicle/MinecartEntity clientZ D
+transitive-accessible field     net/minecraft/entity/vehicle/MinecartEntity clientPitch D
+transitive-accessible field     net/minecraft/entity/vehicle/MinecartEntity clientYaw D
+transitive-accessible field     net/minecraft/entity/vehicle/MinecartEntity ADJACENT_RAIL_POSITIONS_BY_SHAPE [[[I
+transitive-accessible field     net/minecraft/entity/vehicle/MinecartEntity yawFlipped Z
+transitive-accessible method    net/minecraft/entity/Entity                 setRotation (FF)V
+transitive-accessible field     net/minecraft/entity/Entity                 random Ljava/util/Random;
+transitive-accessible method    net/minecraft/entity/Entity                 onLanding (F)V

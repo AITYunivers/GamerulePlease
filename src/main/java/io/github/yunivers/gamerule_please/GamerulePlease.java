@@ -1,16 +1,14 @@
-package net.glasslauncher.example.events.init;
+package io.github.yunivers.gamerule_please;
 
 import net.mine_diver.unsafeevents.listener.EventListener;
 import net.modificationstation.stationapi.api.event.mod.InitEvent;
-import net.modificationstation.stationapi.api.mod.entrypoint.Entrypoint;
 import net.modificationstation.stationapi.api.mod.entrypoint.EntrypointManager;
 import net.modificationstation.stationapi.api.util.Namespace;
-import net.modificationstation.stationapi.api.util.Null;
 import org.apache.logging.log4j.Logger;
 
 import java.lang.invoke.MethodHandles;
 
-public class InitListener {
+public class GamerulePlease {
     static {
         EntrypointManager.registerLookup(MethodHandles.lookup());
     }
@@ -20,8 +18,5 @@ public class InitListener {
 
     public static final Logger LOGGER = NAMESPACE.getLogger();
 
-    @EventListener
-    private static void serverInit(InitEvent event) {
-        LOGGER.info(NAMESPACE.toString());
-    }
+    public static int currentDays;
 }
