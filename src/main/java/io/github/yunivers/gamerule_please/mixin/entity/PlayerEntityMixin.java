@@ -1,5 +1,7 @@
 package io.github.yunivers.gamerule_please.mixin.entity;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import io.github.yunivers.gamerule_please.config.Config;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -26,7 +28,7 @@ public abstract class PlayerEntityMixin
             cir.setReturnValue(true);
     }
 
-    @Redirect(
+    @WrapOperation(
         method = "onLanding",
         at = @At(
                 value = "INVOKE",
@@ -34,9 +36,9 @@ public abstract class PlayerEntityMixin
                 ordinal = 0
         )
     )
-    public boolean onLandingInject(LivingEntity instance, Entity damageSource, int amount) {
-        if (Config.Gamerules.player.fallDamage)
-            this.damage(damageSource, amount);
-        return false;
+    public boolean onLandingInject(LivingEntity instance, Entity damageSource, int amount, Operation<Boolean> original) {
+        if (!Config.Gamerules.player.fallDamage)
+            return false;
+        return original.call(instance, damageSource, amount);
     }
 }

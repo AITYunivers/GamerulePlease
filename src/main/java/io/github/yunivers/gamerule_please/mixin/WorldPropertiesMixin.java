@@ -1,5 +1,7 @@
 package io.github.yunivers.gamerule_please.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import io.github.yunivers.gamerule_please.GamerulePlease;
 import io.github.yunivers.gamerule_please.config.Config;
 import net.minecraft.nbt.NbtCompound;
@@ -10,14 +12,13 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(WorldProperties.class)
 public abstract class WorldPropertiesMixin
 {
-    @Unique
-    private @Nullable Long rollbackTime = null;
     @Unique
     private boolean lastTick = false;
 
@@ -30,8 +31,8 @@ public abstract class WorldPropertiesMixin
     )
     public void restoreGetTime(CallbackInfoReturnable<Long> cir)
     {
-        if (!Config.Gamerules.worldUpdates.doDaylightCycle && rollbackTime != null) // Reverts the time when doDaylightCycle is disabled
-            cir.setReturnValue(rollbackTime);
+        if (!Config.Gamerules.worldUpdates.doDaylightCycle && GamerulePlease.rollbackTime != null) // Reverts the time when doDaylightCycle is disabled
+            cir.setReturnValue(GamerulePlease.rollbackTime);
     }
 
     // Easier to read so suppress the warnings
@@ -43,22 +44,25 @@ public abstract class WorldPropertiesMixin
     )
     public void restoreSetTime(long time, CallbackInfo ci)
     {
-        if (!Config.Gamerules.worldUpdates.doDaylightCycle && rollbackTime != null && lastTick) // Reverts the time when doDaylightCycle is disabled
+        // If the player is setting the time through a mod/bed
+        if (Math.abs(time - this.time) > 1)
         {
-            this.time = rollbackTime;
-            rollbackTime = null;
+            GamerulePlease.rollbackTime = time;
+            this.time = time;
+            ci.cancel();
+        }
+
+        if (Config.Gamerules.worldUpdates.doDaylightCycle && GamerulePlease.rollbackTime != null && lastTick) // Reverts the time when doDaylightCycle is disabled
+        {
+            this.time = GamerulePlease.rollbackTime;
+            GamerulePlease.rollbackTime = null;
             lastTick = false;
             ci.cancel();
         }
-        else if (Config.Gamerules.worldUpdates.doDaylightCycle && rollbackTime == null)
-        {
-            rollbackTime = this.time;
-            ci.cancel();
-        }
-        else if (Config.Gamerules.worldUpdates.doDaylightCycle)
-            lastTick = true;
+        else if (!Config.Gamerules.worldUpdates.doDaylightCycle && GamerulePlease.rollbackTime == null)
+            GamerulePlease.rollbackTime = this.time;
         else if (!Config.Gamerules.worldUpdates.doDaylightCycle)
-            rollbackTime = time;
+            lastTick = true;
     }
 
     @Inject(
@@ -102,5 +106,19 @@ public abstract class WorldPropertiesMixin
     public void writeDaysNbt(NbtCompound nbt, NbtCompound playerNbt, CallbackInfo ci)
     {
         nbt.putInt("days", GamerulePlease.currentDays);
+    }
+
+    @WrapOperation(
+        method = "updateProperties",
+        at = @At(
+            value = "FIELD",
+            target = "Lnet/minecraft/world/WorldProperties;time:J"
+        )
+    )
+    public long writeRollbackTime(WorldProperties instance, Operation<Long> original)
+    {
+        if (GamerulePlease.rollbackTime != null)
+            return GamerulePlease.rollbackTime;
+        return original.call(instance);
     }
 }

@@ -1,5 +1,7 @@
 package io.github.yunivers.gamerule_please.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import io.github.yunivers.gamerule_please.config.Config;
 import net.minecraft.client.InteractionManager;
 import net.minecraft.client.Minecraft;
@@ -33,24 +35,25 @@ public class MinecraftMixin
 			minecraft.player.respawn();
 	}
 
-	@Redirect(
+	@WrapOperation(
 		method = "respawnPlayer",
 		at = @At(
 			value = "INVOKE",
 			target = "Lnet/minecraft/client/InteractionManager;createPlayer(Lnet/minecraft/world/World;)Lnet/minecraft/entity/player/PlayerEntity;"
 		)
 	)
-	public PlayerEntity keepInventory(InteractionManager instance, World world)
+	public PlayerEntity keepInventory(InteractionManager instance, World world, Operation<PlayerEntity> original)
 	{
-		Minecraft minecraft = (Minecraft)(Object)this;
-		ClientPlayerEntity player = new ClientPlayerEntity(minecraft, world, minecraft.session, world.dimension.id);
 		if (Config.Gamerules.player.keepInventory)
 		{
+			Minecraft minecraft = (Minecraft)(Object)this;
+			ClientPlayerEntity player = new ClientPlayerEntity(minecraft, world, minecraft.session, world.dimension.id);
 			player.inventory = minecraft.player.inventory;
 			player.inventory.player = player;
 			player.playerScreenHandler = minecraft.player.playerScreenHandler;
+			return player;
 		}
-		return player;
+		return original.call(instance, world);
 	}
 
 	@Inject(

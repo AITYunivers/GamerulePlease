@@ -1,5 +1,7 @@
 package io.github.yunivers.gamerule_please.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import io.github.yunivers.gamerule_please.config.Config;
 import io.github.yunivers.gamerule_please.entity.EmptyBedEntity;
 import net.minecraft.block.BedBlock;
@@ -39,28 +41,28 @@ public abstract class ExplosionMixin
             ci.cancel();
     }
 
-    @Redirect(
+    @WrapOperation(
         method = "playExplosionSound",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/world/World;getBlockId(III)I"
         )
     )
-    public int breakBlocks(World instance, int x, int y, int z)
+    public int breakBlocks(World world, int x, int y, int z, Operation<Integer> original)
     {
         if (!Config.Gamerules.mob.mobGriefing && (source instanceof CreeperEntity || source instanceof FireballEntity))
             return 0;
-        return instance.getBlockId(x, y, z);
+        return original.call(world, x, y, z);
     }
 
-    @Redirect(
+    @WrapOperation(
         method = "playExplosionSound",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/block/Block;dropStacks(Lnet/minecraft/world/World;IIIIF)V"
         )
     )
-    public void doDropStacks(Block instance, World world, int x, int y, int z, int meta, float luck)
+    public void doDropStacks(Block instance, World world, int x, int y, int z, int meta, float luck, Operation<Void> original)
     {
         if (!Config.Gamerules.drops.blockExplosionDropDecay && source instanceof EmptyBedEntity)
             luck = 1.0F;
@@ -68,6 +70,6 @@ public abstract class ExplosionMixin
             luck = 1.0F;
         if (!Config.Gamerules.drops.tntExplosionDropDecay && source instanceof TntEntity)
             luck = 1.0F;
-        instance.dropStacks(world, x, y, z, meta, luck);
+        original.call(instance, world, x, y, z, meta, luck);
     }
 }

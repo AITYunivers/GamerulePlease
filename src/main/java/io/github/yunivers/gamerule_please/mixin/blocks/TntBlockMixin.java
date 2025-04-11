@@ -1,5 +1,7 @@
 package io.github.yunivers.gamerule_please.mixin.blocks;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import io.github.yunivers.gamerule_please.config.Config;
 import net.minecraft.block.Block;
 import net.minecraft.block.TntBlock;
@@ -27,18 +29,18 @@ public class TntBlockMixin
             ci.cancel();
     }
 
-    @Redirect(
+    @WrapOperation(
             method = {"onPlaced", "neighborUpdate"},
             at = @At(
                 value = "INVOKE",
                 target = "Lnet/minecraft/world/World;setBlock(IIII)Z"
             )
     )
-    public boolean removeSetBlock(World instance, int x, int y, int z, int blockId)
+    public boolean removeSetBlock(World instance, int x, int y, int z, int blockId, Operation<Boolean> original)
     {
         if (!Config.Gamerules.misc.tntExplodes)
             return false;
-        return instance.setBlock(x, y, z, blockId);
+        return original.call(instance, x, y, z, blockId);
     }
 
     @Inject(

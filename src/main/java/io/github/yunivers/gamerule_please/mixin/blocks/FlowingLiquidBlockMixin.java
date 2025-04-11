@@ -2,6 +2,8 @@ package io.github.yunivers.gamerule_please.mixin.blocks;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.ModifyReceiver;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import io.github.yunivers.gamerule_please.config.Config;
 import net.minecraft.block.FlowingLiquidBlock;
@@ -19,7 +21,7 @@ import java.util.Random;
 public class FlowingLiquidBlockMixin
 {
     // Wow this SUCKS
-    @Redirect(
+    @WrapOperation(
         method = "onTick",
         at = @At(
             value = "FIELD",
@@ -27,7 +29,7 @@ public class FlowingLiquidBlockMixin
             opcode = Opcodes.GETFIELD
         )
     )
-    private Material checkSourceConversion(FlowingLiquidBlock instance) {
+    private Material checkSourceConversion(FlowingLiquidBlock instance, Operation<Material> original) {
         if (Config.Gamerules.worldUpdates.waterSourceConversion && instance.material == Material.WATER)
             return Material.WATER;
         else if (Config.Gamerules.worldUpdates.lavaSourceConversion && instance.material == Material.LAVA)
@@ -36,16 +38,17 @@ public class FlowingLiquidBlockMixin
             return Material.LAVA;
     }
 
-    @ModifyConstant(
+    @ModifyExpressionValue(
         method = "onTick",
-        constant = @Constant(
-            intValue = 1,
+        at = @At(
+            value = "CONSTANT",
+            args = "intValue=1",
             ordinal = 0
         )
     )
-    private int getSpreadSpeed(int value, @Local(argsOnly = true) World world)
+    private int getSpreadSpeed(int original, @Local(argsOnly = true) World world)
     {
         FlowingLiquidBlock liquid = (FlowingLiquidBlock)(Object)this;
-        return liquid.material == Material.LAVA && !world.dimension.evaporatesWater ? 2 : 1;
+        return liquid.material == Material.LAVA && !world.dimension.evaporatesWater ? 2 : original;
     }
 }

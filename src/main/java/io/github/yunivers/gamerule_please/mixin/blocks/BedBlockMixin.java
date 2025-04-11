@@ -1,5 +1,7 @@
 package io.github.yunivers.gamerule_please.mixin.blocks;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import io.github.yunivers.gamerule_please.config.Config;
 import io.github.yunivers.gamerule_please.entity.EmptyBedEntity;
 import net.minecraft.block.BedBlock;
@@ -16,14 +18,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(BedBlock.class)
 public class BedBlockMixin
 {
-    @Redirect(
+    @WrapOperation(
         method = "onUse",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/world/World;createExplosion(Lnet/minecraft/entity/Entity;DDDFZ)Lnet/minecraft/world/explosion/Explosion;"
         )
     )
-    public Explosion createExplosion(World instance, Entity source, double x, double y, double z, float power, boolean fire)
+    public Explosion createExplosion(World instance, Entity source, double x, double y, double z, float power, boolean fire, Operation<Explosion> original)
     {
         return instance.createExplosion(new EmptyBedEntity(instance), x, y, z, power, fire);
     }
