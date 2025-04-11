@@ -4,6 +4,7 @@
   "package": "io.github.yunivers.gamerule_please.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "DimensionMixin",
     "ExplosionMixin",
     "MinecraftMixin",
     "NaturalSpawnerMixin",

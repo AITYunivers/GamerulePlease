@@ -4,29 +4,61 @@ import io.github.yunivers.gamerule_please.GamerulePlease;
 import io.github.yunivers.gamerule_please.config.Config;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.world.WorldProperties;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(WorldProperties.class)
 public abstract class WorldPropertiesMixin
 {
-    @Shadow public abstract long getTime();
+    @Unique
+    private @Nullable Long rollbackTime = null;
+    @Unique
+    private boolean lastTick = false;
 
+    @Shadow private long time;
+
+    @Inject(
+        method = "getTime",
+        at = @At("HEAD"),
+        cancellable = true
+    )
+    public void restoreGetTime(CallbackInfoReturnable<Long> cir)
+    {
+        if (!Config.Gamerules.worldUpdates.doDaylightCycle && rollbackTime != null) // Reverts the time when doDaylightCycle is disabled
+            cir.setReturnValue(rollbackTime);
+    }
+
+    // Easier to read so suppress the warnings
+    @SuppressWarnings({"DuplicateCondition", "ConstantValue"})
     @Inject(
         method = "setTime",
         at = @At("HEAD"),
         cancellable = true
     )
-    public void trySetTime(long time, CallbackInfo ci)
+    public void restoreSetTime(long time, CallbackInfo ci)
     {
-        long dayCheck = getTime() + 24000L;
-        if (!Config.Gamerules.worldUpdates.doDaylightCycle && time == getTime() + 1) // So beds and mods like AMI can still set the time
+        if (!Config.Gamerules.worldUpdates.doDaylightCycle && rollbackTime != null && lastTick) // Reverts the time when doDaylightCycle is disabled
+        {
+            this.time = rollbackTime;
+            rollbackTime = null;
+            lastTick = false;
             ci.cancel();
-        else if (time < getTime() || time == dayCheck - dayCheck % 24000L)
-            GamerulePlease.currentDays++;
+        }
+        else if (Config.Gamerules.worldUpdates.doDaylightCycle && rollbackTime == null)
+        {
+            rollbackTime = this.time;
+            ci.cancel();
+        }
+        else if (Config.Gamerules.worldUpdates.doDaylightCycle)
+            lastTick = true;
+        else if (!Config.Gamerules.worldUpdates.doDaylightCycle)
+            rollbackTime = time;
     }
 
     @Inject(
