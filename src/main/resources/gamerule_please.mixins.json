@@ -28,6 +28,7 @@
     "entity.TntEntityMixin"
   ],
   "server": [
+    "PlayerManagerMixin"
   ],
   "client": [
     "InGameHudMixin",
