@@ -84,6 +84,8 @@ dependencies {
 	modImplementation("net.glasslauncher.mods:ModMenu:${project.properties["modmenu_version"]}")
 	// https://github.com/Glass-Series/Always-More-Items
 	modImplementation("net.glasslauncher.mods:AlwaysMoreItems:${project.properties["alwaysmoreitems_version"]}")
+	// https://github.com/matthewperiut/retrocommands
+	modImplementation("maven.modrinth:retrocommands:${project.properties["retrocommands_version"]}")
 }
 
 tasks.withType<ProcessResources> {

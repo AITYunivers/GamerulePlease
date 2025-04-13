@@ -19,6 +19,9 @@
 
   "environment": "*",
   "entrypoints": {
+    "main": [
+      "io.github.yunivers.gamerule_please.GamerulePlease"
+    ],
     "stationapi:event_bus": [
       "io.github.yunivers.gamerule_please.GamerulePlease"
     ],
