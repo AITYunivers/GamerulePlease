@@ -4,357 +4,247 @@ import com.matthewperiut.retrocommands.api.Command;
 import com.matthewperiut.retrocommands.util.SharedCommandSource;
 import io.github.yunivers.gamerule_please.config.Config;
 import net.fabricmc.loader.api.FabricLoader;
+import net.glasslauncher.mods.gcapi3.api.ConfigEntry;
+import net.glasslauncher.mods.gcapi3.api.ConfigRoot;
+import net.glasslauncher.mods.gcapi3.api.GCAPI;
+import net.glasslauncher.mods.gcapi3.impl.ConfigRootEntry;
+import net.glasslauncher.mods.gcapi3.impl.EventStorage;
+import net.glasslauncher.mods.gcapi3.impl.GCCore;
+import net.glasslauncher.mods.gcapi3.impl.GlassYamlFile;
 import net.minecraft.client.Minecraft;
+import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
-public class GameruleCommand implements Command {
-    public static final String[] ALL_CONFIG_NAMES = {
-            // GamerulesPlayer
-            "disablePlayerMovementCheck",
-            "doImmediateRespawn",
-            "drowningDamage",
-            "fallDamage",
-            "fireDamage",
-            "keepInventory",
-            "playersNetherPortalDelay",
-
-            // GamerulesMob
-            "doMobSpawning",
-            "mobGriefing",
-            "universalAnger",
-            "forgiveDeadPlayers",
-
-            // GamerulesDrops
-            "doMobLoot",
-            "doTileDrops",
-            "projectilesCanBreakBlocks",
-            "blockExplosionDropDecay",
-            "mobExplosionDropDecay",
-            "tntExplosionDropDecay",
-
-            // GamerulesWorldUpdates
-            "doDaylightCycle",
-            "doWeatherCycle",
-            "doFireTick",
-            "randomTickSpeed",
-            "lavaSourceConversion",
-            "waterSourceConversion",
-
-            // GamerulesMultiplayer
-            "logAdminCommands",
-            "sendCommandFeedback",
-            "playersSleepingPercentage",
-
-            // GamerulesMisc
-            "reducedDebugInfo",
-            "showCoordinates",
-            "showDaysPlayed",
-            "minecartMaxSpeed",
-            "tntExplodes",
-            "respawnBlocksExplode"
-    };
-
-    public static boolean updateValue(String name, Boolean value) {
-        switch (name) {
-            // GamerulesPlayer
-            case "disablePlayerMovementCheck" -> Config.Gamerules.player.disablePlayerMovementCheck = value;
-            case "doImmediateRespawn" -> Config.Gamerules.player.doImmediateRespawn = value;
-            case "drowningDamage" -> Config.Gamerules.player.drowningDamage = value;
-            case "fallDamage" -> Config.Gamerules.player.fallDamage = value;
-            case "fireDamage" -> Config.Gamerules.player.fireDamage = value;
-            case "keepInventory" -> Config.Gamerules.player.keepInventory = value;
-
-            // GamerulesMob
-            case "doMobSpawning" -> Config.Gamerules.mob.doMobSpawning = value;
-            case "mobGriefing" -> Config.Gamerules.mob.mobGriefing = value;
-            case "universalAnger" -> Config.Gamerules.mob.universalAnger = value;
-            case "forgiveDeadPlayers" -> Config.Gamerules.mob.forgiveDeadPlayers = value;
-
-            // GamerulesDrops
-            case "doMobLoot" -> Config.Gamerules.drops.doMobLoot = value;
-            case "doTileDrops" -> Config.Gamerules.drops.doTileDrops = value;
-            case "projectilesCanBreakBlocks" -> Config.Gamerules.drops.projectilesCanBreakBlocks = value;
-            case "blockExplosionDropDecay" -> Config.Gamerules.drops.blockExplosionDropDecay = value;
-            case "mobExplosionDropDecay" -> Config.Gamerules.drops.mobExplosionDropDecay = value;
-            case "tntExplosionDropDecay" -> Config.Gamerules.drops.tntExplosionDropDecay = value;
-
-            // GamerulesWorldUpdates
-            case "doDaylightCycle" -> Config.Gamerules.worldUpdates.doDaylightCycle = value;
-            case "doWeatherCycle" -> Config.Gamerules.worldUpdates.doWeatherCycle = value;
-            case "doFireTick" -> Config.Gamerules.worldUpdates.doFireTick = value;
-            case "lavaSourceConversion" -> Config.Gamerules.worldUpdates.lavaSourceConversion = value;
-            case "waterSourceConversion" -> Config.Gamerules.worldUpdates.waterSourceConversion = value;
-
-            // GamerulesMultiplayer
-            case "logAdminCommands" -> Config.Gamerules.multiplayer.logAdminCommands = value;
-            case "sendCommandFeedback" -> Config.Gamerules.multiplayer.sendCommandFeedback = value;
-
-            // GamerulesMisc
-            case "reducedDebugInfo" -> Config.Gamerules.misc.reducedDebugInfo = value;
-            case "showCoordinates" -> Config.Gamerules.misc.showCoordinates = value;
-            case "showDaysPlayed" -> Config.Gamerules.misc.showDaysPlayed = value;
-            case "tntExplodes" -> Config.Gamerules.misc.tntExplodes = value;
-            case "respawnBlocksExplode" -> Config.Gamerules.misc.respawnBlocksExplode = value;
-
-            default -> {
-                return false;
-            }
+public class GameruleCommand implements Command
+{
+    public static String[] getConfigNames()
+    {
+        List<String> configNames = new ArrayList<>();
+        Field[] gameruleCategories = Config.Gamerules.getClass().getDeclaredFields();
+        for (Field category : gameruleCategories)
+        {
+            Field[] gamerules = category.getType().getDeclaredFields();
+            for (Field gamerule : gamerules)
+                configNames.add(gamerule.getName());
         }
-        return true;
+        return configNames.toArray(new String[0]);
     }
 
-    public static boolean updateValue(SharedCommandSource cs, String name, Integer value) {
-        switch (name) {
-            // GamerulesPlayer
-            case "playersNetherPortalDelay" -> {
-                if (value < 0) {
-                    cs.sendFeedback("Value must be above 0");
-                    return false;
-                } else if (value > Integer.MAX_VALUE) {
-                    cs.sendFeedback("Value must be below " + Integer.MAX_VALUE);
-                    return false;
-                }
-                Config.Gamerules.player.playersNetherPortalDelay = value;
-            }
-            // GamerulesWorldUpdates
-            case "randomTickSpeed" -> {
-                if (value < 0) {
-                    cs.sendFeedback("Value must be above 0");
-                    return false;
-                } else if (value > Integer.MAX_VALUE) {
-                    cs.sendFeedback("Value must be below " + Integer.MAX_VALUE);
-                    return false;
-                }
-                Config.Gamerules.worldUpdates.randomTickSpeed = value;
-            }
-            // GamerulesMultiplayer
-            case "playersSleepingPercentage" -> {
-                if (value < -1) {
-                    cs.sendFeedback("Value must be above -1");
-                    return false;
-                } else if (value > 100) {
-                    cs.sendFeedback("Value must be below 100");
-                    return false;
-                }
-                Config.Gamerules.multiplayer.playersSleepingPercentage = value;
-            }
-            // GamerulesMisc
-            case "minecartMaxSpeed" -> {
-                if (value < 1) {
-                    cs.sendFeedback("Value must be above 1");
-                    return false;
-                } else if (value > 2000) {
-                    cs.sendFeedback("Value must be below 2000");
-                    return false;
-                }
-                Config.Gamerules.misc.minecartMaxSpeed = value;
-            }
-
-            default -> {
-                return false;
-            }
+    public static Field getConfigField(String str)
+    {
+        Field[] gameruleCategories = Config.Gamerules.getClass().getDeclaredFields();
+        for (Field category : gameruleCategories)
+        {
+            Field[] gamerules = category.getType().getDeclaredFields();
+            for (Field gamerule : gamerules)
+                if (gamerule.getName().equalsIgnoreCase(str))
+                    return gamerule;
         }
-        return true;
+        return null;
     }
 
-    public static String getValue(String name) {
-        switch (name) {
-            // === Boolean entries ===
-
-            // GamerulesPlayer
-            case "disablePlayerMovementCheck" -> {
-                return Config.Gamerules.player.disablePlayerMovementCheck.toString();
-            }
-            case "doImmediateRespawn" -> {
-                return Config.Gamerules.player.doImmediateRespawn.toString();
-            }
-            case "drowningDamage" -> {
-                return Config.Gamerules.player.drowningDamage.toString();
-            }
-            case "fallDamage" -> {
-                return Config.Gamerules.player.fallDamage.toString();
-            }
-            case "fireDamage" -> {
-                return Config.Gamerules.player.fireDamage.toString();
-            }
-            case "keepInventory" -> {
-                return Config.Gamerules.player.keepInventory.toString();
-            }
-
-            // GamerulesMob
-            case "doMobSpawning" -> {
-                return Config.Gamerules.mob.doMobSpawning.toString();
-            }
-            case "mobGriefing" -> {
-                return Config.Gamerules.mob.mobGriefing.toString();
-            }
-            case "universalAnger" -> {
-                return Config.Gamerules.mob.universalAnger.toString();
-            }
-            case "forgiveDeadPlayers" -> {
-                return Config.Gamerules.mob.forgiveDeadPlayers.toString();
-            }
-
-            // GamerulesDrops
-            case "doMobLoot" -> {
-                return Config.Gamerules.drops.doMobLoot.toString();
-            }
-            case "doTileDrops" -> {
-                return Config.Gamerules.drops.doTileDrops.toString();
-            }
-            case "projectilesCanBreakBlocks" -> {
-                return Config.Gamerules.drops.projectilesCanBreakBlocks.toString();
-            }
-            case "blockExplosionDropDecay" -> {
-                return Config.Gamerules.drops.blockExplosionDropDecay.toString();
-            }
-            case "mobExplosionDropDecay" -> {
-                return Config.Gamerules.drops.mobExplosionDropDecay.toString();
-            }
-            case "tntExplosionDropDecay" -> {
-                return Config.Gamerules.drops.tntExplosionDropDecay.toString();
-            }
-
-            // GamerulesWorldUpdates
-            case "doDaylightCycle" -> {
-                return Config.Gamerules.worldUpdates.doDaylightCycle.toString();
-            }
-            case "doWeatherCycle" -> {
-                return Config.Gamerules.worldUpdates.doWeatherCycle.toString();
-            }
-            case "doFireTick" -> {
-                return Config.Gamerules.worldUpdates.doFireTick.toString();
-            }
-            case "lavaSourceConversion" -> {
-                return Config.Gamerules.worldUpdates.lavaSourceConversion.toString();
-            }
-            case "waterSourceConversion" -> {
-                return Config.Gamerules.worldUpdates.waterSourceConversion.toString();
-            }
-
-            // GamerulesMultiplayer
-            case "logAdminCommands" -> {
-                return Config.Gamerules.multiplayer.logAdminCommands.toString();
-            }
-            case "sendCommandFeedback" -> {
-                return Config.Gamerules.multiplayer.sendCommandFeedback.toString();
-            }
-
-            // GamerulesMisc
-            case "reducedDebugInfo" -> {
-                return Config.Gamerules.misc.reducedDebugInfo.toString();
-            }
-            case "showCoordinates" -> {
-                return Config.Gamerules.misc.showCoordinates.toString();
-            }
-            case "showDaysPlayed" -> {
-                return Config.Gamerules.misc.showDaysPlayed.toString();
-            }
-            case "tntExplodes" -> {
-                return Config.Gamerules.misc.tntExplodes.toString();
-            }
-            case "respawnBlocksExplode" -> {
-                return Config.Gamerules.misc.respawnBlocksExplode.toString();
-            }
-
-            // === Integer entries ===
-
-            // GamerulesPlayer
-            case "playersNetherPortalDelay" -> {
-                return Config.Gamerules.player.playersNetherPortalDelay.toString();
-            }
-
-            // GamerulesWorldUpdates
-            case "randomTickSpeed" -> {
-                return Config.Gamerules.worldUpdates.randomTickSpeed.toString();
-            }
-
-            // GamerulesMultiplayer
-            case "playersSleepingPercentage" -> {
-                return Config.Gamerules.multiplayer.playersSleepingPercentage.toString();
-            }
-
-            // GamerulesMisc
-            case "minecartMaxSpeed" -> {
-                return Config.Gamerules.misc.minecartMaxSpeed.toString();
-            }
-
-            default -> {
-                return "Unknown gamerule: " + name;
+    public static Object getConfigInstance(Field field)
+    {
+        try
+        {
+            Field[] gameruleCategories = Config.Gamerules.getClass().getDeclaredFields();
+            for (Field category : gameruleCategories)
+            {
+                Field[] gamerules = category.getType().getDeclaredFields();
+                for (Field gamerule : gamerules)
+                    if (gamerule.equals(field))
+                        return gamerule.get(category.get(Config.Gamerules));
             }
         }
+        catch (IllegalAccessException ignored) {}
+        return null;
     }
 
-    public static boolean isInteger(String s, int radix) {
-        Scanner sc = new Scanner(s.trim());
-        if(!sc.hasNextInt(radix)) return false;
-        sc.nextInt(radix);
+    public static Boolean setConfigInstance(Field field, Object value)
+    {
+        try
+        {
+            Field[] gameruleCategories = Config.Gamerules.getClass().getDeclaredFields();
+            for (Field category : gameruleCategories)
+            {
+                Field[] gamerules = category.getType().getDeclaredFields();
+                for (Field gamerule : gamerules)
+                    if (gamerule.equals(field))
+                    {
+                        gamerule.set(category.get(Config.Gamerules), value);
+                        return true;
+                    }
+            }
+        }
+        catch (IllegalAccessException ignored) {}
+        return false;
+    }
+
+    private String setConfigValue(String configName, Object value)
+    {
+        Field configField = getConfigField(configName);
+        if (configField == null)
+            return "Unknown gamerule " + configName;
+
+        Object configInstance = getConfigInstance(configField);
+        if (configInstance == null)
+            return "Unknown gamerule " + configName;
+
+        if (configInstance.getClass().equals(value.getClass()))
+        {
+            if (value instanceof Boolean valueBool)
+            {
+                if (setConfigInstance(configField, value))
+                    return "Set " + configName + " to " + valueBool;
+                else
+                    return "Could not set " + configName + " to " + valueBool;
+            }
+            else if (value instanceof Integer valueInt)
+            {
+                ConfigEntry configEntry = configField.getAnnotation(ConfigEntry.class);
+                if (configEntry == null)
+                    return "Unknown gamerule " + configName;
+                else if (valueInt >= configEntry.minLength() && valueInt <= configEntry.maxLength())
+                    if (setConfigInstance(configField, value))
+                        return "Set " + configName + " to " + valueInt;
+                    else
+                        return "Could not set " + configName + " to " + valueInt;
+            }
+            else
+                return "!! This shouldn't happen, please open an issue on the Github !!";
+        }
+        return "Could not convert " + value + " to " + configInstance.getClass().getName();
+    }
+
+    public static String getValue(String name)
+    {
+        Field field = getConfigField(name);
+        if (field == null)
+            return "";
+
+        Object config = getConfigInstance(field);
+        if (config != null)
+            return config.toString();
+        return "";
+    }
+
+    public static boolean isInteger(String str)
+    {
+        Scanner sc = new Scanner(str.trim());
+        if (!sc.hasNextInt(10))
+            return false;
+        sc.nextInt(10);
         return !sc.hasNext();
     }
 
-    @Override
-    public void command(SharedCommandSource commandSource, String[] parameters) {
-        if (parameters.length == 2) {
-            String s = getValue(parameters[1]);
-            if (s.startsWith("Unknown")) {
-                commandSource.sendFeedback(s);
-            } else {
-                commandSource.sendFeedback("Gamerule " + parameters[1] + " is currently set to: " + s);
-            }
-        } else if (parameters.length == 3) {
-            if (parameters[2].toLowerCase().equals("false") || parameters[2].toLowerCase().equals("true")) {
-                boolean b = parameters[2].toLowerCase().equals("true");
-                if (!updateValue(parameters[1], b)) {
-                    commandSource.sendFeedback("Non-existent gamerule");
-                }
-            }
-            else if (isInteger(parameters[2], 10)) {
-                int i = Integer.parseInt(parameters[2]);
-                if (!updateValue(commandSource, parameters[1], i)) {
-                    commandSource.sendFeedback("Invalid value or improper gamerule");
-                }
-            }
-            else {
-                commandSource.sendFeedback("Invalid value");
-            }
-        }
-        commandSource.sendFeedback("Improper usage, use /help gamerule");
+    public static boolean isBoolean(String str)
+    {
+        return str.equalsIgnoreCase("false") || str.equalsIgnoreCase("true");
     }
 
     @Override
-    public String name() {
+    public void command(SharedCommandSource commandSource, String[] parameters)
+    {
+        if (parameters.length == 2)
+        {
+            String s = getValue(parameters[1]);
+            if (s.isEmpty())
+                commandSource.sendFeedback("Unknown gamerule " + parameters[1]);
+            else
+                commandSource.sendFeedback("Gamerule " + parameters[1] + " is currently set to: " + s);
+        }
+        else if (parameters.length == 3)
+        {
+            String configName = parameters[1];
+            String setValue = parameters[2];
+            if (isConfigBoolean(configName))
+            {
+                if (isBoolean(setValue))
+                    commandSource.sendFeedback(setConfigValue(configName, Boolean.parseBoolean(setValue)));
+                else
+                    commandSource.sendFeedback("Expected Boolean, got " + setValue);
+            }
+            else if (isConfigInteger(configName))
+            {
+                if (isInteger(setValue))
+                    commandSource.sendFeedback(setConfigValue(configName, Integer.parseInt(setValue)));
+                else
+                    commandSource.sendFeedback("Expected Integer, got " + setValue);
+            }
+            else
+                commandSource.sendFeedback("!! This shouldn't happen, please open an issue on the Github !!");
+            saveConfig();
+        }
+        else
+            commandSource.sendFeedback("Improper usage, use /help gamerule");
+    }
+
+    // TODO: Make this work??? Idk why it doesnt???? I'll ask Calmilamsy tomorrow.
+    @SuppressWarnings("deprecation")
+    public static void saveConfig()
+    {
+        ConfigRootEntry category = GCCore.MOD_CONFIGS.get("gamerule_please:config");
+        GCCore.saveConfig(category.modContainer(), category.configCategoryHandler(), EventStorage.EventSource.MOD_SAVE);
+        GCCore.loadModConfig(category.configRoot(), category.modContainer(), category.configCategoryHandler().parentField, "gamerule_please:config", null);
+    }
+
+    @Override
+    public String name()
+    {
         return "gamerule";
     }
 
     @Override
-    public void manual(SharedCommandSource commandSource) {
+    public void manual(SharedCommandSource commandSource)
+    {
         commandSource.sendFeedback("Usage: /gamerule");
         commandSource.sendFeedback("Info: Clears chat history");
     }
 
-    public String[] suggestion(SharedCommandSource source, int parameterNum, String currentInput, String totalInput) {
-        if (parameterNum == 1) {
+    public String[] suggestion(SharedCommandSource source, int parameterNum, String currentInput, String totalInput)
+    {
+        if (parameterNum == 1)
+        {
             ArrayList<String> outputs = new ArrayList<>();
 
-            for (String key : ALL_CONFIG_NAMES) {
-                if (key.startsWith(currentInput)) {
+            for (String key : getConfigNames())
+                if (key.startsWith(currentInput))
                     outputs.add(key.substring(currentInput.length()));
-                }
-            }
 
             return outputs.toArray(new String[0]);
-        } else if (parameterNum == 2) {
-            if (currentInput.length() == 0) {
+        }
+        else if (parameterNum == 2)
+        {
+            if (isConfigBoolean(totalInput.split(" ")[1]))
+                return new String[] { "false", "true" };
+            else if (currentInput.isEmpty())
+            {
                 String s = getValue(totalInput.split(" ")[1]);
-                if (s.startsWith("Unknown")) {
-                    return new String[]{};
-                } else {
-                    return new String[]{s};
-                }
+                if (s.isEmpty())
+                    return new String[0];
+                return new String[] { s };
             }
         }
-        return new String[]{};
+        return new String[0];
+    }
+
+    private boolean isConfigBoolean(String name)
+    {
+        Field configField = getConfigField(name);
+        if (configField != null)
+            return configField.getType() == Boolean.class;
+        return false;
+    }
+
+    private boolean isConfigInteger(String name)
+    {
+        Field configField = getConfigField(name);
+        if (configField != null)
+            return configField.getType() == Integer.class;
+        return false;
     }
 }
