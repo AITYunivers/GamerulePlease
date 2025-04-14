@@ -2,17 +2,11 @@ package io.github.yunivers.gamerule_please.compat.retrocommands;
 
 import com.matthewperiut.retrocommands.api.Command;
 import com.matthewperiut.retrocommands.util.SharedCommandSource;
+import io.github.yunivers.gamerule_please.GamerulePlease;
 import io.github.yunivers.gamerule_please.config.Config;
-import net.fabricmc.loader.api.FabricLoader;
 import net.glasslauncher.mods.gcapi3.api.ConfigEntry;
-import net.glasslauncher.mods.gcapi3.api.ConfigRoot;
 import net.glasslauncher.mods.gcapi3.api.GCAPI;
-import net.glasslauncher.mods.gcapi3.impl.ConfigRootEntry;
-import net.glasslauncher.mods.gcapi3.impl.EventStorage;
-import net.glasslauncher.mods.gcapi3.impl.GCCore;
 import net.glasslauncher.mods.gcapi3.impl.GlassYamlFile;
-import net.minecraft.client.Minecraft;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -76,6 +70,10 @@ public class GameruleCommand implements Command
                     if (gamerule.equals(field))
                     {
                         gamerule.set(category.get(Config.Gamerules), value);
+                        GCAPI.reloadConfig(GamerulePlease.NAMESPACE.id("config").toString(),
+                            new GlassYamlFile() {{
+                                set(gamerule.getName(), value);
+                            }});
                         return true;
                     }
             }
@@ -177,19 +175,9 @@ public class GameruleCommand implements Command
             }
             else
                 commandSource.sendFeedback("!! This shouldn't happen, please open an issue on the Github !!");
-            saveConfig();
         }
         else
             commandSource.sendFeedback("Improper usage, use /help gamerule");
-    }
-
-    // TODO: Make this work??? Idk why it doesnt???? I'll ask Calmilamsy tomorrow.
-    @SuppressWarnings("deprecation")
-    public static void saveConfig()
-    {
-        ConfigRootEntry category = GCCore.MOD_CONFIGS.get("gamerule_please:config");
-        GCCore.saveConfig(category.modContainer(), category.configCategoryHandler(), EventStorage.EventSource.MOD_SAVE);
-        GCCore.loadModConfig(category.configRoot(), category.modContainer(), category.configCategoryHandler().parentField, "gamerule_please:config", null);
     }
 
     @Override

@@ -86,6 +86,8 @@ dependencies {
 	modImplementation("net.glasslauncher.mods:AlwaysMoreItems:${project.properties["alwaysmoreitems_version"]}")
 	// https://github.com/matthewperiut/retrocommands
 	modImplementation("maven.modrinth:retrocommands:${project.properties["retrocommands_version"]}")
+
+	transitiveImplementation(implementation(include("me.carleslc:Simple-Yaml:1.8.4") as Dependency) as Dependency)
 }
 
 tasks.withType<ProcessResources> {
