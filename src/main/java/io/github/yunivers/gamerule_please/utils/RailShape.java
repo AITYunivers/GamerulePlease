@@ -1,8 +1,11 @@
 package io.github.yunivers.gamerule_please.utils;
 
+import lombok.Getter;
 import net.modificationstation.stationapi.api.util.StringIdentifiable;
 
-public enum RailShape implements StringIdentifiable {
+@Getter
+public enum RailShape implements StringIdentifiable
+{
     NORTH_SOUTH("north_south"),
     EAST_WEST("east_west"),
     ASCENDING_EAST("ascending_east"),
@@ -16,12 +19,8 @@ public enum RailShape implements StringIdentifiable {
 
     private final String name;
 
-    private RailShape(final String name) {
+    RailShape(final String name) {
         this.name = name;
-    }
-
-    public String getName() {
-        return this.name;
     }
 
     public String toString() {

@@ -25,16 +25,19 @@
     "entity.LivingEntityMixin",
     "entity.MinecartEntityMixin",
     "entity.PlayerEntityMixin",
-    "entity.TntEntityMixin"
+    "entity.TntEntityMixin",
+    "packet.ExplosionS2CPacketMixin"
   ],
   "server": [
-    "PlayerManagerMixin"
+    "PlayerManagerMixin",
+    "world.ServerWorldMixin"
   ],
   "client": [
     "InGameHudMixin",
     "accessors.MinecraftAccessor",
     "entity.ClientPlayerEntityMixin",
-    "entity.LivingEntityRendererMixin"
+    "entity.LivingEntityRendererMixin",
+    "network.ClientNetworkHandlerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

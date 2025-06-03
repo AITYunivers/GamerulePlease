@@ -45,5 +45,12 @@
   },
   "suggests": {
     "modmenu": "*"
+  },
+  "custom": {
+    "loom:injected_interfaces": {
+      "net/minecraft/network/packet/s2c/play/ExplosionS2CPacket": [
+        "io/github/yunivers/gamerule_please/interfaces/ExplosionPacketImpl"
+      ]
+    }
   }
 }
