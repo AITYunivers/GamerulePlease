@@ -106,7 +106,7 @@ public class GameruleCommand implements Command
                 ConfigEntry configEntry = configField.getAnnotation(ConfigEntry.class);
                 if (configEntry == null)
                     return "Unknown gamerule " + configName;
-                else if (valueInt >= configEntry.minLength() && valueInt <= configEntry.maxLength())
+                else if (valueInt >= configEntry.minValue() && valueInt <= configEntry.maxValue())
                     if (setConfigInstance(configField, value))
                         return "Set " + configName + " to " + valueInt;
                     else

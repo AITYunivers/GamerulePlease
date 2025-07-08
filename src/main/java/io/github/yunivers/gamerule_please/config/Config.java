@@ -4,6 +4,7 @@ import net.glasslauncher.mods.gcapi3.api.ConfigCategory;
 import net.glasslauncher.mods.gcapi3.api.ConfigEntry;
 import net.glasslauncher.mods.gcapi3.api.ConfigRoot;
 
+@SuppressWarnings("ALL")
 public class Config
 {
     @ConfigRoot(value = "config", visibleName = "Gamerules")
@@ -79,8 +80,8 @@ public class Config
         @ConfigEntry(
             name = "playersNetherPortalDelay",
             description = "Player's Nether portal delay",
-            minLength = 0,
-            maxLength = Integer.MAX_VALUE,
+            minValue = 0,
+            maxValue = Integer.MAX_VALUE,
             multiplayerSynced = true
         )
         public Integer playersNetherPortalDelay = 80;
@@ -194,8 +195,8 @@ public class Config
         @ConfigEntry(
             name = "randomTickSpeed",
             description = "Random tick speed rate",
-            minLength = 0,
-            maxLength = Integer.MAX_VALUE,
+            minValue = 0,
+            maxValue = Integer.MAX_VALUE,
             multiplayerSynced = true
         )
         public Integer randomTickSpeed = 80;
@@ -236,8 +237,8 @@ public class Config
         @ConfigEntry(
                 name = "playersSleepingPercentage",
                 description = "Sleep percentage",
-                minLength = -1,
-                maxLength = 100,
+                minValue = -1,
+                maxValue = 100,
                 multiplayerSynced = true
         )
         public Integer playersSleepingPercentage = 100;
@@ -267,8 +268,8 @@ public class Config
         @ConfigEntry(
             name = "minecartMaxSpeed",
             description = "The maximum speed a minecart may reach (NOT IMPLEMENTED)",
-            minLength = 1,
-            maxLength = 2000,
+            minValue = 1,
+            maxValue = 2000,
             multiplayerSynced = true,
             hidden = true
         )

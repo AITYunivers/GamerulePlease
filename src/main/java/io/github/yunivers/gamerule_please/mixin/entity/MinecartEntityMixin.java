@@ -43,7 +43,7 @@ public class MinecartEntityMixin
     private Vec3d lastPosition;
 
     @Unique
-    public final List<MinecartStep> stagingLerpSteps = new LinkedList();
+    public final List<MinecartStep> stagingLerpSteps = new LinkedList<>();
 
     public MinecartEntityMixin()
     {
